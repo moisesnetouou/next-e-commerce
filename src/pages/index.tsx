@@ -18,26 +18,28 @@ interface ProductFormatted extends Product {
   priceFormatted: string;
 }
 
-interface CartItemsAmount {
+interface CartproductsAmount {
   [key: number]: number;
 }
 
 export default function Home(){
   const [products, setProducts] = useState<ProductFormatted[]>([]);
-  // const { addProduct, cart } = useCart();
+  const { addProduct, cart } = useCart();
 
-  // const cartItemsAmount = cart.reduce((sumAmount, product) => {
-  //   // TODO
-  // }, {} as CartItemsAmount)
+  const cartproductsAmount = cart.reduce((sumAmount, product) => {
+    const newSumAmount = {...sumAmount};
+
+    newSumAmount[product.id] = product.amount;
+
+    return newSumAmount;
+  }, {} as CartproductsAmount)
 
   useEffect(() => {
     async function loadProducts() {
-      const response = await api.get("/products");
+      const response = await api.get<Product[]>("/products");
 
       const data = response.data.map((product) => ({
-        id: product.id,
-        image: product.image,
-        title: product.title,
+        ...product,
         priceFormatted: formatPrice(product.price)
       })) 
 
@@ -50,24 +52,24 @@ export default function Home(){
   }, []);
 
   function handleAddProduct(id: number) {
-    // TODO
+    addProduct(id);
   }
 
   return (
     <ProductList>
-      {products.map((item) => (
-        <li key={item.id}>
-          <img src={item.image} alt={item.title} />
-          <strong>{item.title}</strong>
-          <span>{item.priceFormatted}</span>
+      {products.map((product) => (
+        <li key={product.id}>
+          <img src={product.image} alt={product.title} />
+          <strong>{product.title}</strong>
+          <span>{product.priceFormatted}</span>
           <button
             type="button"
             data-testid="add-product-button"
-          // onClick={() => handleAddProduct(product.id)}
+            onClick={() => handleAddProduct(product.id)}
           >
             <div data-testid="cart-product-quantity">
               <MdAddShoppingCart size={16} color="#FFF" />
-              {/* {cartItemsAmount[product.id] || 0} */} 2
+              {cartproductsAmount[product.id] || 0}
             </div>
 
             <span>ADICIONAR AO CARRINHO</span>
