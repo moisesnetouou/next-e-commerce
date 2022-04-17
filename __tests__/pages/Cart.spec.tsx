@@ -1,13 +1,13 @@
 import { render, fireEvent } from '@testing-library/react';
 
-import { useCart } from '../../hooks/useCart';
-import Cart from '../../pages/Cart';
+import { useCart } from '../../src/hooks/useCart';
+import Cart from '../../src/pages/cart';
 
 const mockedRemoveProduct = jest.fn();
 const mockedUpdateProductAmount = jest.fn();
 const mockedUseCartHook = useCart as jest.Mock;
 
-jest.mock('../../hooks/useCart');
+jest.mock('../../src/hooks/useCart');
 
 describe('Cart Page', () => {
   beforeEach(() => {
