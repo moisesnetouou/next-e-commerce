@@ -29,6 +29,26 @@ export const Container = styled.div`
   }
 `;
 
+export const EmptyCart = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  
+  span {
+    display: flex;
+    background-color: #191920;
+    color: #FFF;
+    border: dashed;
+    padding: 1.5rem;
+    border-radius: 50%;
+    font-size: 2rem;
+    text-align: center;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+`;
+
 export const ProductTable = styled.table`
   width: 100%;
 
@@ -95,6 +115,7 @@ export const ProductTable = styled.table`
       }
     }
   }
+
 `;
 
 export const Total = styled.div`
@@ -109,5 +130,15 @@ export const Total = styled.div`
   strong {
     font-size: 28px;
     margin-left: 5px;
+  }
+`;
+
+export const RemoveProducts = styled.button`
+  display: flex;
+  align-items: center;
+
+  span {
+    margin-left: 0.25rem;
+    font-size: 0.8rem;
   }
 `;
