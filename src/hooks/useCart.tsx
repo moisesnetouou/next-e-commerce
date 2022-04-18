@@ -1,7 +1,8 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
 import { Product, Stock } from './types';
+import {setCookie, parseCookies, destroyCookie} from 'nookies';
 
 interface CartProviderProps {
   children: ReactNode;
@@ -17,19 +18,23 @@ interface CartContextData {
   addProduct: (productId: number) => Promise<void>;
   removeProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
+  removeAllProducts: () => void;
 }
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
-  const [cart, setCart] = useState<Product[]>(() => {
-    const storagedCart = localStorage.getItem('@RocketShoes:cart');
-    if (storagedCart) {
-      return JSON.parse(storagedCart); // retornado em forma de array de produtos
-    }
+  const [cart, setCart] = useState<Product[]>([]);
 
-    return [];
-  });
+  useEffect(()=> {
+    const {'@RocketShoes:cart': storagedCart} = parseCookies();
+
+    if (storagedCart) {
+      setCart(JSON.parse(storagedCart)); // retornado em forma de array de produtos
+    } 
+
+  }, [])
+
 
   const addProduct = async (productId: number) => {
     try {
@@ -61,7 +66,11 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       }
 
       setCart(updatedCart);
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart))
+      setCookie(undefined, '@RocketShoes:cart', JSON.stringify(updatedCart), {
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: '/'
+      });
+      
     } catch {
       toast.error("Erro na adiçao do produto");
     }
@@ -76,7 +85,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if(productIndex >= 0){
         updatedCart.splice(productIndex, 1); // apaga o item
         setCart(updatedCart);
-        localStorage.setItem('RocketShoes:cart', JSON.stringify(updatedCart))
+        setCookie(undefined, '@RocketShoes:cart', JSON.stringify(updatedCart), {
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+          path: '/'
+        });
       } else {
         throw Error();
       }
@@ -84,6 +96,11 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     } catch {
       toast.error('Erro na remoção do produto');
     }
+  };
+
+  const removeAllProducts = () => {
+    setCart([]);
+    return destroyCookie(null, '@RocketShoes:cart')
   };
 
   const updateProductAmount = async ({
@@ -110,7 +127,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if(productExists){
         productExists.amount = amount;
         setCart(updatedCart);
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart))
+        setCookie(undefined, '@RocketShoes:cart', JSON.stringify(updatedCart), {
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+          path: '/'
+        });
       }else {
         throw Error();
       }
@@ -122,7 +142,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   return (
     <CartContext.Provider
-      value={{ cart, addProduct, removeProduct, updateProductAmount }}
+      value={{ cart, addProduct, removeProduct, updateProductAmount, removeAllProducts }}
     >
       {children}
     </CartContext.Provider>
